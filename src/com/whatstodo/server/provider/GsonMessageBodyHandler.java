@@ -20,8 +20,6 @@ import javax.ws.rs.ext.Provider;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.whatstodo.models.List;
-import com.whatstodo.net.ListTypeAdapter;
 
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
@@ -38,7 +36,6 @@ public final class GsonMessageBodyHandler implements MessageBodyWriter<Object>,
 			final GsonBuilder gsonBuilder = new GsonBuilder();
 			gson = gsonBuilder.excludeFieldsWithModifiers(Modifier.STATIC)
 					.serializeNulls()
-					.registerTypeAdapter(List.class, new ListTypeAdapter())
 					.create();
 		}
 		return gson;

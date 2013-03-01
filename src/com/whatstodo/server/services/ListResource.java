@@ -10,11 +10,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.whatstodo.models.List;
+import com.whatstodo.dtos.ListDTO;
 
 @Path("list")
 public class ListResource {
-
 
 	@GET
 	@Path("serverinfo")
@@ -29,8 +28,9 @@ public class ListResource {
 	@GET
 	@Path("{user}/{listid}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List saveList(@PathParam("user") String user,  @PathParam("listid") long listId) {
-		
+	public ListDTO getList(@PathParam("user") String user,
+			@PathParam("listid") long listId) {
+
 		System.out.println("Get List for " + user + " with ListID " + listId);
 		return null;
 	}
@@ -39,26 +39,30 @@ public class ListResource {
 	@Path("{user}/{listid}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public List synchronizeList(@PathParam("user") String user,  @PathParam("listid") long listId, List message) {
-		
+	public ListDTO synchronizeList(@PathParam("user") String user,
+			@PathParam("listid") long listId, ListDTO message) {
+
 		System.out.println("Sync List for " + user + " with ListID " + listId);
 		return message;
 	}
-	
+
 	@PUT
 	@Path("{user}/{listid}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void saveList(@PathParam("user") String user,  @PathParam("listid") long listId, List message) {
-		
+	public void saveList(@PathParam("user") String user,
+			@PathParam("listid") long listId, ListDTO message) {
+
 		System.out.println("Save List for " + user + " with ListID " + listId);
 	}
-	
+
 	@DELETE
 	@Path("{user}/{listid}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void deleteList(@PathParam("user") String user,  @PathParam("listid") long listId) {
-		
-		System.out.println("Delete List for " + user + " with ListID " + listId);
+	public void deleteList(@PathParam("user") String user,
+			@PathParam("listid") long listId) {
+
+		System.out
+				.println("Delete List for " + user + " with ListID " + listId);
 	}
 }
 
