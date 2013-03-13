@@ -10,15 +10,15 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 
-public class MongoHelper {
+public class MongoDBHelper {
 
 	private String dbName;
 	private String dbCollection;
 	private String mongoDBIp;
 	private int mongoDBPort;
-	private MongoTest mongo = new MongoTest();
+	private MongoDB mongo = new MongoDB();
 
-	public MongoHelper(String name, String collection, String ip, int port) {
+	public MongoDBHelper(String name, String collection, String ip, int port) {
 		this.dbName = name;
 		this.dbCollection = collection;
 		this.mongoDBIp = ip;
