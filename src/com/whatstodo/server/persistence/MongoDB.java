@@ -9,39 +9,39 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 
-public class MongoDB implements BaseDB<BasicDBObject>{
+public class MongoDB {
 
 	private DB db;
 	private DBCollection collection;
-	
+
 	public void open(MongoClient client, String name, String collection) {
 		this.db = client.getDB(name);
 		this.setCollection(db.getCollection(collection));
 	}
 
 	public void addEntry(BasicDBObject entry) {
-		//TODO check if there is already one entry with this id
+		// TODO check if there is already one entry with this id
 		collection.insert(entry);
-		//System.out.println("New Entry:" + entry.toString());
+		// System.out.println("New Entry:" + entry.toString());
 		return;
 	}
 
 	public BasicDBObject getById(BasicDBObject entry) {
-		return (BasicDBObject)collection.findOne(entry);
+		return (BasicDBObject) collection.findOne(entry);
 	}
 
 	public List<BasicDBObject> getAll() {
-		
+
 		List<BasicDBObject> resultList = new ArrayList<BasicDBObject>();
 		DBCursor cursor = this.collection.find();
-		//resultList.add((BasicDBObject)collection.findOne());
+		if(cursor == null)
+			return null;
 		try {
-		   while(cursor.hasNext()) {
-			   resultList.add((BasicDBObject)cursor.next());
-		       //System.out.println(cursor.next());
-		   }
+			while (cursor.hasNext()) {
+				resultList.add((BasicDBObject) cursor.next());
+			}
 		} finally {
-		   cursor.close();
+			cursor.close();
 		}
 		return resultList;
 	}
@@ -50,9 +50,8 @@ public class MongoDB implements BaseDB<BasicDBObject>{
 		collection.update(oldEntry, newEntry, true, false);
 		return;
 	}
-	
-	
-	public void deleteAll(){
+
+	public void deleteAll() {
 		collection.drop();
 	}
 
