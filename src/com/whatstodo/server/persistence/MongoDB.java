@@ -20,21 +20,35 @@ public class MongoDB {
 	}
 
 	public void addEntry(BasicDBObject entry) {
-		// TODO check if there is already one entry with this id
 		collection.insert(entry);
-		// System.out.println("New Entry:" + entry.toString());
 		return;
 	}
 
-	public BasicDBObject getById(BasicDBObject entry) {
-		return (BasicDBObject) collection.findOne(entry);
+	public BasicDBObject getElement(BasicDBObject query) {
+		return (BasicDBObject) collection.findOne(query);
+	}
+
+	public List<BasicDBObject> getElements(BasicDBObject query) {
+
+		List<BasicDBObject> resultList = new ArrayList<BasicDBObject>();
+		DBCursor cursor = this.collection.find(query);
+		if (cursor == null)
+			return null;
+		try {
+			while (cursor.hasNext()) {
+				resultList.add((BasicDBObject) cursor.next());
+			}
+		} finally {
+			cursor.close();
+		}
+		return resultList;
 	}
 
 	public List<BasicDBObject> getAll() {
 
 		List<BasicDBObject> resultList = new ArrayList<BasicDBObject>();
 		DBCursor cursor = this.collection.find();
-		if(cursor == null)
+		if (cursor == null)
 			return null;
 		try {
 			while (cursor.hasNext()) {

@@ -1,4 +1,4 @@
-package com.whatstodo.manager;
+package com.whatstodo.server.manager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +15,7 @@ public class TodoManager {
 
 	private TodoManager() {
 
-		// TODO Here goes the implementation of the dao
-		todoDao = new TodoDAOMongoDB("Test1", "localhost", 27017);
+		todoDao = new TodoDAOMongoDB("test", "localhost", 27017);
 	}
 
 	public static TodoManager getInstance(String userUID) {

@@ -99,7 +99,7 @@ public class TodoDAOMongoDB implements TodoDAO {
 
 		ListDTO listDTO = new ListDTO();
 
-		BasicDBObject basicObj = mongo.getById(new BasicDBObject("_id", id));
+		BasicDBObject basicObj = mongo.getElement(new BasicDBObject("_id", id));
 		if (basicObj == null)
 			return null;
 		listDTO = gson.fromJson(basicObj.toString(), ListDTO.class);
