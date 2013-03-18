@@ -1,14 +1,9 @@
 package com.whatstodo.server;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
-import com.whatstodo.models.HistoryEvent;
-import com.whatstodo.models.HistoryEvent.Action;
-import com.whatstodo.models.HistoryEvent.Type;
-import com.whatstodo.server.manager.HistoryEventManager;
+import com.sun.jersey.api.container.httpserver.HttpServerFactory;
+import com.sun.net.httpserver.HttpServer;
 
 public class Main {
 
@@ -20,69 +15,69 @@ public class Main {
 	public static void main(String[] args) throws IllegalArgumentException,
 			IOException {
 
-		// HttpServer server = HttpServerFactory
-		// .create("http://localhost:8080/rest");
-		// server.start();
-		// while (true);
-		// server.stop(0);
+		 HttpServer server = HttpServerFactory
+		 .create("http://localhost:8080/rest");
+		 server.start();
+		 while (true);
+		 //server.stop(0);
 
 		// MongoDB Test HistoryDAO
 
-		HistoryEvent event = new HistoryEvent();
-		event.setAction(Action.Read);
-		event.setEntityUid(3);
-		event.setId(0);
-		event.setType(Type.Task);
-		event.setTimeOfChange(Calendar.getInstance().getTime());
-
-		HistoryEvent event1 = new HistoryEvent();
-		event1.setAction(Action.Deleted);
-		event1.setEntityUid(5);
-		event1.setId(1);
-		event1.setSynchronized(true);
-		event1.setType(Type.Todo);
-		event1.setTimeOfChange(Calendar.getInstance().getTime());
-
-		HistoryEventManager mongo = HistoryEventManager.getInstance("Niko");
-
-		List<HistoryEvent> resultList = new ArrayList<HistoryEvent>();
-
-		resultList = mongo.getAllDTOs("Niko");
-		System.out.println("Initial:" + resultList.toString());
-		for (HistoryEvent item : resultList) {
-			System.out.println("Item: " + item.getAction().toString() + " "
-					+ item.getEntityUid() + " ID: " + item.getId());
-		}
-
-		mongo.deleteAll("Niko");
-
-		resultList = mongo.getAllDTOs("Niko");
-		System.out.println("DeleteAll:" + resultList.toString());
-		for (HistoryEvent item : resultList) {
-			System.out.println("Item: " + item.getAction().toString() + " "
-					+ item.getEntityUid() + " ID: " + item.getId());
-		}
-
-		mongo.save(event, "Niko");
-		mongo.save(event1, "Niko");
-
-		resultList = mongo.getAllDTOs("Niko");
-		System.out.println("Add:" + resultList.toString());
-		for (HistoryEvent item : resultList) {
-			System.out.println("Item: " + item.getAction().toString() + " "
-					+ item.getEntityUid() + " ID: " + item.getId());
-		}
-
-		HistoryEvent event2 = new HistoryEvent();
-		event2 = event1;
-		event2.setTimeOfChange(Calendar.getInstance().getTime());
-
-		resultList = mongo.load(event2, "Niko");
-		System.out.println("Load:" + resultList.toString());
-		for (HistoryEvent item : resultList) {
-			System.out.println("Item: " + item.getAction().toString() + " "
-					+ item.getEntityUid() + " ID: " + item.getId());
-		}
+//		HistoryEvent event = new HistoryEvent();
+//		event.setAction(Action.Read);
+//		event.setEntityUid(3);
+//		event.setId(0);
+//		event.setType(Type.Task);
+//		event.setTimeOfChange(Calendar.getInstance().getTime());
+//
+//		HistoryEvent event1 = new HistoryEvent();
+//		event1.setAction(Action.Deleted);
+//		event1.setEntityUid(5);
+//		event1.setId(1);
+//		event1.setSynchronized(true);
+//		event1.setType(Type.Todo);
+//		event1.setTimeOfChange(Calendar.getInstance().getTime());
+//
+//		HistoryEventManager mongo = HistoryEventManager.getInstance("Niko");
+//
+//		List<HistoryEvent> resultList = new ArrayList<HistoryEvent>();
+//
+//		resultList = mongo.getAllDTOs("Niko");
+//		System.out.println("Initial:" + resultList.toString());
+//		for (HistoryEvent item : resultList) {
+//			System.out.println("Item: " + item.getAction().toString() + " "
+//					+ item.getEntityUid() + " ID: " + item.getId());
+//		}
+//
+//		mongo.deleteAll("Niko");
+//
+//		resultList = mongo.getAllDTOs("Niko");
+//		System.out.println("DeleteAll:" + resultList.toString());
+//		for (HistoryEvent item : resultList) {
+//			System.out.println("Item: " + item.getAction().toString() + " "
+//					+ item.getEntityUid() + " ID: " + item.getId());
+//		}
+//
+//		mongo.save(event, "Niko");
+//		mongo.save(event1, "Niko");
+//
+//		resultList = mongo.getAllDTOs("Niko");
+//		System.out.println("Add:" + resultList.toString());
+//		for (HistoryEvent item : resultList) {
+//			System.out.println("Item: " + item.getAction().toString() + " "
+//					+ item.getEntityUid() + " ID: " + item.getId());
+//		}
+//
+//		HistoryEvent event2 = new HistoryEvent();
+//		event2 = event1;
+//		event2.setTimeOfChange(Calendar.getInstance().getTime());
+//
+//		resultList = mongo.load(event2, "Niko");
+//		System.out.println("Load:" + resultList.toString());
+//		for (HistoryEvent item : resultList) {
+//			System.out.println("Item: " + item.getAction().toString() + " "
+//					+ item.getEntityUid() + " ID: " + item.getId());
+//		}
 
 		// Test MongoDB ListDAO
 
