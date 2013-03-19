@@ -15,7 +15,7 @@ public class TodoManager {
 
 	private TodoManager() {
 
-		todoDao = new TodoDAOMongoDB("test", "localhost", 27017);
+		todoDao = new TodoDAOMongoDB("WhastToDo", "localhost", 27017);
 	}
 
 	public static TodoManager getInstance() {

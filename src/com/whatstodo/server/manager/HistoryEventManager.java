@@ -1,9 +1,12 @@
 package com.whatstodo.server.manager;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.whatstodo.models.HistoryEvent;
+import com.whatstodo.models.HistoryEvent.Action;
+import com.whatstodo.models.HistoryEvent.Type;
 import com.whatstodo.server.persistence.HistoryEventDAO;
 import com.whatstodo.server.persistence.HistoryEventDAOMongoDB;
 
@@ -15,11 +18,11 @@ public class HistoryEventManager {
 
 	private HistoryEventManager() {
 
-		historyEventDao = new HistoryEventDAOMongoDB("test", "localhost",
+		historyEventDao = new HistoryEventDAOMongoDB("WhatsToDo", "localhost",
 				27017);
 	}
 
-	public static HistoryEventManager getInstance(String userUID) {
+	public static HistoryEventManager getInstance() {
 
 		return instance;
 	}
@@ -36,19 +39,23 @@ public class HistoryEventManager {
 		}
 	}
 
-	public List<HistoryEvent> load(HistoryEvent list, String userUID) {
+	public List<HistoryEvent> load(Type type, Long entityUid,
+			Long parentEntityUid, Action action, Date timeOfChange,
+			Boolean isSynchronized, String userUID) {
 
-		List<HistoryEvent> listE = new ArrayList<HistoryEvent>();
+		List<HistoryEvent> listEvent = new ArrayList<HistoryEvent>();
 		try {
 			historyEventDao.open(userUID);
-			listE = historyEventDao.find(list.getType(), list.getEntityUid(),
-					list.getAction(), list.getTimeOfChange(),
-					list.isSynchronized());
+			// listEvent = historyEventDao.find(list.getType(),
+			// list.getEntityUid(), list.getAction(),
+			// list.getTimeOfChange(), list.isSynchronized());
+			listEvent = historyEventDao.find(type, entityUid, parentEntityUid,
+					action, timeOfChange, isSynchronized);
 		} finally {
 			historyEventDao.close();
 		}
 
-		return listE;
+		return listEvent;
 	}
 
 	public List<HistoryEvent> getAllDTOs(String userID) {

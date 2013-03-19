@@ -9,7 +9,7 @@ import com.whatstodo.models.HistoryEvent.Type;
 
 public interface HistoryEventDAO extends BaseDAO<HistoryEvent> {
 
-	List<HistoryEvent> find(Type type, Long entityUid, Action action,
+	List<HistoryEvent> find(Type type, Long entityUid, Long parentEntityUid, Action action,
 			Date after, Boolean isSynchronized);
 
 }

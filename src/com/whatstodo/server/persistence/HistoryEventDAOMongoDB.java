@@ -122,7 +122,7 @@ public class HistoryEventDAOMongoDB implements HistoryEventDAO {
 	}
 
 	@Override
-	public List<HistoryEvent> find(Type type, Long entityUid, Action action,
+	public List<HistoryEvent> find(Type type, Long entityUid, Long parentEntityUid, Action action,
 			Date after, Boolean isSynchronized) {
 
 		List<BasicDBObject> dbList = new ArrayList<BasicDBObject>();
@@ -133,11 +133,13 @@ public class HistoryEventDAOMongoDB implements HistoryEventDAO {
 			query.put("type", type.toString());
 		if (entityUid != null)
 			query.append("entityUid", entityUid);
+		if (parentEntityUid != null)
+			query.append("parentEntityUid", parentEntityUid);
 		if (action != null)
 			query.append("action", action.toString());
 		if (after != null)
 			query.put("timeOfChange",
-					new BasicDBObject("$lte", after.toString()));
+					new BasicDBObject("$gte", after.toString()));
 		if (isSynchronized != null)
 			query.append("isSynchronized", isSynchronized);
 

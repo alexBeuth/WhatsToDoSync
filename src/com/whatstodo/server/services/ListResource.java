@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import com.whatstodo.dtos.ListDTO;
 import com.whatstodo.net.request.SyncAllRequest;
 import com.whatstodo.net.request.SyncTodoRequest;
+import com.whatstodo.server.Synchronizer;
 import com.whatstodo.server.manager.TodoManager;
 
 @Path("list")
@@ -94,9 +95,8 @@ public class ListResource {
 			SyncAllRequest request) {
 
 		System.out.println("Sync Lists for " + user);
-		
-		//TODO Sync here !
-		return request.getTodos();
+	
+		return new Synchronizer().synchronizeAll(user, request);
 	}
 }
 
