@@ -18,7 +18,7 @@ public class TodoManager {
 		todoDao = new TodoDAOMongoDB("test", "localhost", 27017);
 	}
 
-	public static TodoManager getInstance(String userUID) {
+	public static TodoManager getInstance() {
 
 		return instance;
 	}

@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import com.whatstodo.dtos.ListDTO;
 import com.whatstodo.net.request.SyncAllRequest;
 import com.whatstodo.net.request.SyncTodoRequest;
+import com.whatstodo.server.manager.TodoManager;
 
 @Path("list")
 public class ListResource {
@@ -32,21 +33,56 @@ public class ListResource {
 	@GET
 	@Path("{user}/{listid}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ListDTO getList(@PathParam("user") String user,
+	public ListDTO getList(@PathParam("user") String userUID,
 			@PathParam("listid") long listId) {
 
-		System.out.println("Get List for " + user + " with ListID " + listId);
-		return null;
+		return TodoManager.getInstance().load(listId, userUID);
 	}
 
 	@POST
 	@Path("{user}/{listid}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ListDTO synchronizeList(@PathParam("user") String user,
+	public ListDTO updateList(@PathParam("user") String userUID,
+			@PathParam("listid") long listId, ListDTO message) {
+
+		System.out.println("Update List for " + userUID + " with ListID " + listId);
+		return TodoManager.getInstance().save(message, userUID);
+	}
+
+	@PUT
+	@Path("{user}/{listid}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ListDTO saveList(@PathParam("user") String userUID,
+			@PathParam("listid") long listId, ListDTO message) {
+
+		System.out.println("Save List for " + userUID + " with ListID " + listId);
+		return TodoManager.getInstance().save(message, userUID);
+	}
+
+	@DELETE
+	@Path("{user}/{listid}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void deleteList(@PathParam("user") String userUID,
+			@PathParam("listid") long listId) {
+
+		System.out
+				.println("Delete List for " + userUID + " with ListID " + listId);
+		ListDTO toDelete = new ListDTO();
+		toDelete.setId(listId);
+		TodoManager.getInstance().delete(toDelete, userUID);
+	}
+	
+	@POST
+	@Path("{user}/{listid}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ListDTO synchronizeList(@PathParam("user") String userUID,
 			@PathParam("listid") long listId, SyncTodoRequest request) {
 
-		System.out.println("Sync List for " + user + " with ListID " + listId);
+		System.out.println("Sync List for " + userUID + " with ListID " + listId);
+		
+		//TODO Sync here !
 		return request.getTodo();
 	}
 	
@@ -58,26 +94,9 @@ public class ListResource {
 			SyncAllRequest request) {
 
 		System.out.println("Sync Lists for " + user);
+		
+		//TODO Sync here !
 		return request.getTodos();
-	}
-
-	@PUT
-	@Path("{user}/{listid}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public void saveList(@PathParam("user") String user,
-			@PathParam("listid") long listId, ListDTO message) {
-
-		System.out.println("Save List for " + user + " with ListID " + listId);
-	}
-
-	@DELETE
-	@Path("{user}/{listid}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public void deleteList(@PathParam("user") String user,
-			@PathParam("listid") long listId) {
-
-		System.out
-				.println("Delete List for " + user + " with ListID " + listId);
 	}
 }
 
