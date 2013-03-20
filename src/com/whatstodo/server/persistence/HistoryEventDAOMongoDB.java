@@ -3,7 +3,6 @@ package com.whatstodo.server.persistence;
 import java.lang.reflect.Modifier;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -123,7 +122,7 @@ public class HistoryEventDAOMongoDB implements HistoryEventDAO {
 
 	@Override
 	public List<HistoryEvent> find(Type type, Long entityUid, Long parentEntityUid, Action action,
-			Date after, Boolean isSynchronized) {
+			Long after, Boolean isSynchronized) {
 
 		List<BasicDBObject> dbList = new ArrayList<BasicDBObject>();
 		List<HistoryEvent> resultList = new ArrayList<HistoryEvent>();
@@ -139,7 +138,7 @@ public class HistoryEventDAOMongoDB implements HistoryEventDAO {
 			query.append("action", action.toString());
 		if (after != null)
 			query.put("timeOfChange",
-					new BasicDBObject("$gte", after.toString()));
+					new BasicDBObject("$gte", after));
 		if (isSynchronized != null)
 			query.append("isSynchronized", isSynchronized);
 

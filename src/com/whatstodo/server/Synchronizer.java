@@ -27,7 +27,7 @@ public class Synchronizer {
 	@SuppressWarnings("unused")
 	public ListDTO synchronizeList(String user, ListDTO todo,
 			List<HistoryEvent> history) {
-
+		
 		com.whatstodo.models.List syncedTodo = null;
 		ListDTO serverDTO = dbTodo.load(todo.getId(), user);
 		com.whatstodo.models.List oldTodo = new com.whatstodo.models.List();
@@ -45,12 +45,12 @@ public class Synchronizer {
 			List<HistoryEvent> serverHistory =  new ArrayList<HistoryEvent>();
 			
 			// Load the old events for the Todo since the last sync
-			List<HistoryEvent> todoHistory = dbHistory.load(null, appTodo
-					.getId(), null, null, history.get(0).getTimeOfChange(),
+			List<HistoryEvent> todoHistory = dbHistory.load(null, todo.getId(),
+					null, null, history.get(0).getTimeOfChange(),
 					null, user);
 			// Load the old events for the Tasks since the last sync
 			List<HistoryEvent> taskHistory = dbHistory.load(null, null,
-					appTodo.getId(), null, history.get(0).getTimeOfChange(),
+					todo.getId(), null, history.get(0).getTimeOfChange(),
 					null, user);
 			
 			serverHistory.addAll(taskHistory);
@@ -217,7 +217,8 @@ public class Synchronizer {
 			while(to.contains(task)) {
 				//the synced todo already contains a task with the id.
 				Random rand = new Random();
-				task.setId(rand.nextLong());
+				task = Task.fromDTO(Task.toDTO(task));
+				task.setId(Math.abs(rand.nextLong()));
 			}
 			
 			//add the task to todo

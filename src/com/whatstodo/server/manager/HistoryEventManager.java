@@ -40,7 +40,7 @@ public class HistoryEventManager {
 	}
 
 	public List<HistoryEvent> load(Type type, Long entityUid,
-			Long parentEntityUid, Action action, Date timeOfChange,
+			Long parentEntityUid, Action action, Long timeOfChange,
 			Boolean isSynchronized, String userUID) {
 
 		List<HistoryEvent> listEvent = new ArrayList<HistoryEvent>();
