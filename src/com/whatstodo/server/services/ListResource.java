@@ -75,7 +75,7 @@ public class ListResource {
 	}
 	
 	@POST
-	@Path("{user}/{listid}")
+	@Path("sync/{user}/{listid}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public ListDTO synchronizeList(@PathParam("user") String userUID,
@@ -84,11 +84,11 @@ public class ListResource {
 		System.out.println("Sync List for " + userUID + " with ListID " + listId);
 		
 		//TODO Sync here !
-		return request.getTodo();
+		return new Synchronizer().synchronizeList(userUID, request.getTodo(), request.getHistory());
 	}
 	
 	@POST
-	@Path("{user}")
+	@Path("sync/{user}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ListDTO> synchronizeAllTodos(@PathParam("user") String user,
