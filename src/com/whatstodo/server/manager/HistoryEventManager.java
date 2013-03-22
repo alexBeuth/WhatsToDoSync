@@ -1,7 +1,6 @@
 package com.whatstodo.server.manager;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.whatstodo.models.HistoryEvent;

@@ -96,7 +96,7 @@ public class ListResource {
 
 		System.out.println("Sync Lists for " + user);
 	
-		return new Synchronizer().synchronizeAll(user, request);
+		return new Synchronizer().synchronizeAll(user, request.getTodos(), request.getHistory());
 	}
 }
 

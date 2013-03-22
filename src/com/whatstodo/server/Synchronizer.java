@@ -3,20 +3,17 @@ package com.whatstodo.server;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import com.whatstodo.dtos.ListDTO;
 import com.whatstodo.models.HistoryEvent;
-import com.whatstodo.models.HistoryEvent.Action;
 import com.whatstodo.models.Task;
-import com.whatstodo.net.request.SyncAllRequest;
 import com.whatstodo.server.manager.HistoryEventManager;
 import com.whatstodo.server.manager.TodoManager;
 
 public class Synchronizer {
 
-	HistoryEventManager dbHistory;
-	TodoManager dbTodo;
+	private HistoryEventManager dbHistory;
+	private TodoManager dbTodo;
 
 	public Synchronizer() {
 
@@ -24,7 +21,7 @@ public class Synchronizer {
 		this.dbTodo = TodoManager.getInstance();
 	}
 
-	@SuppressWarnings("unused")
+	
 	public ListDTO synchronizeList(String user, ListDTO todo,
 			List<HistoryEvent> history) {
 		
@@ -56,27 +53,23 @@ public class Synchronizer {
 			serverHistory.addAll(taskHistory);
 			serverHistory.addAll(todoHistory);
 
-			if (false) {//serverHistory.isEmpty()) {
-				// Nothing happened on the server. App has the latest version
-				syncedTodo = appTodo;
-				for (HistoryEvent event : history) {
-					saveDBEvent(event, user);
-				}
+			// Both sides have changes now merge!
 
-			} else {
-				// Both sides have changes now merge!
+			// Merge both histories
+			history.addAll(serverHistory);
+			Collections.sort(history);
 
-				// Merge both histories
-				history.addAll(serverHistory);
-				Collections.sort(history);
-
-				syncedTodo = merge(user, history, oldTodo, appTodo);
-			}
+			syncedTodo = merge(user, history, oldTodo, appTodo);
 
 		} else {
 			// History is empty so the list on the server is the newest
 
-			syncedTodo = com.whatstodo.models.List.fromDTO(dbTodo.load(appTodo.getId(), user));
+			ListDTO loaded = dbTodo.load(appTodo.getId(), user);
+			if(loaded == null) {
+				// list was not on server so just send back the list and save
+				loaded = todo;
+			}
+			syncedTodo = com.whatstodo.models.List.fromDTO(loaded);
 		}
 
 		dbTodo.save(com.whatstodo.models.List.toDTO(syncedTodo), user);
@@ -88,8 +81,9 @@ public class Synchronizer {
 			com.whatstodo.models.List appTodo) {
 		com.whatstodo.models.List syncedTodo;
 		
-		//Use te server version as starting point
-		syncedTodo = serverTodo;
+		//Use the server version as starting point
+		//TODO Do a real copy !
+		syncedTodo = com.whatstodo.models.List.fromDTO(com.whatstodo.models.List.toDTO(serverTodo));
 		
 		// Iterate over history starting at oldest entry
 		for (HistoryEvent event : history) {
@@ -101,7 +95,7 @@ public class Synchronizer {
 			case Todo:
 				switch (event.getAction()) {
 				case Deleted:
-					//This shouldn't happen
+					//This will be handled in the sync all
 					break;
 				case Created:
 				case Updated:
@@ -213,14 +207,6 @@ public class Synchronizer {
 		if(from.contains(dummyTask)) {
 			Task task = from.getTask(taskId);
 			
-			//Check for id conflict
-			while(to.contains(task)) {
-				//the synced todo already contains a task with the id.
-				Random rand = new Random();
-				task = Task.fromDTO(Task.toDTO(task));
-				task.setId(Math.abs(rand.nextLong()));
-			}
-			
 			//add the task to todo
 			to.add(task);
 		} else {
@@ -229,54 +215,86 @@ public class Synchronizer {
 		
 	}
 
-	public List<ListDTO> synchronizeAll(String user, SyncAllRequest request) {
+	public List<ListDTO> synchronizeAll(String user, List<ListDTO> appTodos,
+			List<HistoryEvent> history) {
+		
+		List<ListDTO> synced = null;
 
-		List<ListDTO> syncList = new ArrayList<ListDTO>();
-		List<HistoryEvent> listDBEvent = new ArrayList<HistoryEvent>();
-		List<HistoryEvent> listDBTodo = dbHistory.getAllDTOs(user);
-		List<HistoryEvent> listSyncEvent = request.getHistory();
+		if (history != null && !history.isEmpty()) {
+			// Sort to have oldest as first
+			Collections.sort(history);
 
-		for (HistoryEvent item : listSyncEvent) {
-			listDBEvent = dbHistory.load(null, item.getEntityUid(), null, null,
-					item.getTimeOfChange(), null, user);
-
-			if (listDBEvent == null) {
-				if (item.getAction() == Action.Created
-						|| item.getAction() == Action.Updated) {
-					ListDTO listDTO = getListById(request.getTodos(),
-							item.getEntityUid());
-					dbTodo.save(listDTO, user);
-				} else if (item.getAction() == Action.Deleted) {
-					dbTodo.delete(dbTodo.load(item.getEntityUid(), user), user);
-				}
-				saveDBEvent(item, user);
-			}
-
-			else {
-				for (HistoryEvent event : listDBEvent) {
-					if (event.getAction() == Action.Created) {
-						// TODO Created is not possible in this case
-					} else if (event.getAction() == Action.Updated) {
-						syncList.add(dbTodo.load(event.getEntityUid(), user));
-					} else if (event.getAction() == Action.Deleted) {
-						// TODO send a deleted list
+			// Load the old events for the Todo since the last sync
+			List<HistoryEvent> todoHistory = dbHistory.load(null, null, 0l,
+					null, history.get(0).getTimeOfChange(), null, user);
+			
+			history.addAll(todoHistory);
+			Collections.sort(history);
+			
+			//Merge
+			//Base is the server version
+			synced = dbTodo.getAllDTOs(user);
+			
+			for (HistoryEvent event : history) {
+				switch (event.getType()) {
+				case Todo:
+					
+					switch (event.getAction()) {
+					case Created:
+						if(!event.isSynchronized()) {
+							ListDTO todo = getListById(appTodos, event.getEntityUid());
+							if(todo != null) {
+								synced.add(todo);
+							}
+						} else {
+							//Todo is already in the synced list
+						}
+						break;
+					case Updated:
+						if(!event.isSynchronized()) {
+							ListDTO todo = getListById(appTodos, event.getEntityUid());
+							if(todo != null) {
+								synced.remove(todo);
+								todo = synchronizeList(user, todo, filterHistory(history, event.getEntityUid(), false));
+								synced.add(todo);
+							}
+						} else {
+							//Todo is already in the synced list
+						}
+						break;
+					case Deleted:
+						ListDTO dummyList = new ListDTO();
+						dummyList.setId(event.getEntityUid());
+						synced.remove(dummyList);
+						dbTodo.delete(dummyList, user);
+						break;
+					default:
+						break;
 					}
+					saveDBEvent(event, user);
+					break;
+				case Task:
+					//Tasks will be merged inside the todo
+				default:
+					break;
 				}
 			}
+			
+		} else {
+			//Nothing happend at the app. Send back the server version
+			
+			synced = dbTodo.getAllDTOs(user);
 		}
-		for (HistoryEvent eventDB : listDBTodo) {
-			// TODO In this case we have to remember the time of the last sync -
-			// is a better solution as to send all lists
-			if (eventDB.getAction() == Action.Created) {
-				if (getListById(request.getTodos(), eventDB.getEntityUid()) == null) {
-					syncList.add(dbTodo.load(eventDB.getEntityUid(), user));
-				}
-			}
+
+		//Save synced list and send it back
+		for (ListDTO todo : synced) {
+			dbTodo.save(todo, user);
 		}
-		return syncList;
+		
+		return synced;
 	}
 
-	public ListDTO getListById(List<ListDTO> listDTOs, Long id) {
+	private ListDTO getListById(List<ListDTO> listDTOs, Long id) {
 
 		for (ListDTO item : listDTOs) {
 			if (item.getId() == id)
@@ -284,8 +302,24 @@ public class Synchronizer {
 		}
 		return null;
 	}
+	
+	private List<HistoryEvent> filterHistory(List<HistoryEvent> history, long todoId, boolean isSynced) {
+		
+		ArrayList<HistoryEvent> result = new ArrayList<HistoryEvent>();
+		for (HistoryEvent event : history) {
+			
+			if((event.getEntityUid() == todoId || event.getParentEntityUid() == todoId) &&
+					event.isSynchronized() == isSynced) {
+				
+				result.add(event);
+			}
+		}
+		
+		return result;
+		
+	}
 
-	public void saveDBEvent(HistoryEvent newEvent, String user) {
+	private void saveDBEvent(HistoryEvent newEvent, String user) {
 		newEvent.setSynchronized(true);
 		dbHistory.save(newEvent, user);
 	}
